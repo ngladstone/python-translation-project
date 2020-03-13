@@ -29,7 +29,7 @@ def translate_sequence(rna_sequence, genetic_code):
         A string of the translated amino acids.
     """
     rna_sequence = rna_sequence.upper()
-    proteins = ''
+    proteins = []
     if len(rna_sequence) < 3:
         return ''
     for i in range(0, len(rna_sequence), 3):
@@ -70,7 +70,19 @@ def get_all_translations(rna_sequence, genetic_code):
         A list of strings; each string is an sequence of amino acids encoded by
         `rna_sequence`.
     """
-    pass
+    rna_sequence = rna_sequence.upper()
+    bases = len(rna_sequence)
+    index = bases - 3
+    if len(rna_sequence) < 3:
+        return ''
+    aa_list = []
+    for aa_pos in range(bases + 1):
+        codon = rna_sequence[aa_pos: aa_pos + 3]
+        if codon == "AUG":
+            aa_sequence = translate_sequence(rna_sequence = rna_sequence[aa_pos:], genetic_code = genetic_code)
+            if aa_sequence:
+                aa_list.append(aa_sequence)
+    return aa_list
 
 def get_reverse(sequence):
     """Reverse orientation of `sequence`.
@@ -157,7 +169,21 @@ def get_longest_peptide(rna_sequence, genetic_code):
         A string of the longest sequence of amino acids encoded by
         `rna_sequence`.
     """
-    pass
+    proteins = get_all_translations(rna_sequence = rna_sequence, genetic_code = genetic_code)
+    reverse_complement = reverse_and_complement(rna_sequence)
+    reverse_translations = get_all_translations(rna_sequence = reverse_complement, genetic_code = genetic_code)
+    protein += reverse+translations
+    if not proteins
+        return ''
+    if len(proteins) < 2:
+        return proteins[0]
+    most_bases = -1
+    longest_peptide = -1
+    for peptide, aa_seq in enumerate(proteins):
+        if len(aa_seq) > most_bases:
+            longest_peptide = peptide
+            most_bases = len(aa_seq)
+    return proteins[longest_peptide)
 
 
 if __name__ == '__main__':
