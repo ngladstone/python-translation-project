@@ -77,7 +77,12 @@ def get_reverse(sequence):
     >>> get_reverse('ATGC')
     'CGTA'
     """
-    pass
+    if sequence == "":
+        print('Empty string. Give me data.')
+
+    else:
+        reverse_sequence=''.join(reversed(sequence))
+        print(reverse_sequence)
 
 def get_complement(sequence):
     """Get the complement of a `sequence` of nucleotides.
