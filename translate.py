@@ -29,14 +29,15 @@ def translate_sequence(rna_sequence, genetic_code):
         A string of the translated amino acids.
     """
     rna_sequence = rna_sequence.upper()
-    proteins = []
-    if len(rna_sequence) < 3:
-        return ''
-    for i in range(0, len(rna_sequence), 3):
-        if genetic_code[rna_sequence[i:i + 3]] == '*':
-            break
-        trans = rna_sequence[i:i + 3]
-        proteins += genetic_code[trans]
+    proteins = ''
+
+    if rna_sequence[0:3] not in ['UAG', 'UAA', 'UGA']:
+        for i in range(0, len(rna_sequence), 3):
+            codon = rna_sequence[i:i + 3]
+            if codon in ['UAG', 'UAA', 'UGA'] or len(codon) != 3:
+                break
+            else:
+                proteins += genetic_code[codon]
     return proteins
 
 def get_all_translations(rna_sequence, genetic_code):
@@ -71,20 +72,28 @@ def get_all_translations(rna_sequence, genetic_code):
         `rna_sequence`.
     """
     rna_sequence = rna_sequence.upper()
-    bases = len(rna_sequence)
-    index = bases - 3
-    if len(rna_sequence) < 3:
-        return ''
     aa_list = []
-    for aa_pos in range(bases + 1):
-        codon = rna_sequence[aa_pos: aa_pos + 3]
-        if codon == "AUG":
-            aa_sequence = translate_sequence(rna_sequence = rna_sequence[aa_pos:], genetic_code = genetic_code)
-            if aa_sequence:
-                aa_list.append(aa_sequence)
+    start_pos = 0
+
+    def translate(start_pos, rna_sequence, genetic_code):
+        proteins = ''
+        for i in range(start_pos, len(rna_sequence), 3):
+            codon = rna_sequence[i:i + 3]
+            if codon in ['UAG', 'UAA', 'UGA'] or len(codon) != 3:
+                break
+            else: proteins += genetic_code[codon]
+        return proteins
+
+    while start_pos < len(rna_sequence):
+        start_codon = rna_sequence[start_pos:start_pos + 3]
+        if start_codon == 'AUG':
+            translation = translate(start_pos, rna_sequence, genetic_code)
+            aa_list.append(translation)
+        start_pos += 1
     return aa_list
 
 def get_reverse(sequence):
+
     """Reverse orientation of `sequence`.
 
     Returns a string with `sequence` in the reverse order.
@@ -169,21 +178,41 @@ def get_longest_peptide(rna_sequence, genetic_code):
         A string of the longest sequence of amino acids encoded by
         `rna_sequence`.
     """
-    proteins = get_all_translations(rna_sequence = rna_sequence, genetic_code = genetic_code)
-    reverse_complement = reverse_and_complement(rna_sequence)
-    reverse_translations = get_all_translations(rna_sequence = reverse_complement, genetic_code = genetic_code)
-    protein += reverse+translations
-    if not proteins
-        return ''
-    if len(proteins) < 2:
-        return proteins[0]
-    most_bases = -1
-    longest_peptide = -1
-    for peptide, aa_seq in enumerate(proteins):
-        if len(aa_seq) > most_bases:
-            longest_peptide = peptide
-            most_bases = len(aa_seq)
-    return proteins[longest_peptide)
+    rna_sequence = rna_sequence.upper()
+    start_pos = 0
+    longest = ""
+    aa_list = []
+
+    def translate(start_pos, rna_sequence, genetic_code):
+        proteins = ""
+        for i in range(start_pos, len(rna_sequence), 3):
+            codon = rna_sequence[i:i + 3]
+            if codon in ["UAG", "UAA", "UGA"] or len(codon) != 3:
+                break
+            else:
+                proteins += genetic_code[codon]
+        return proteins
+
+    def valid_seqs(start_pos, rna_sequence, genetic_code, aa_list):
+        while start_pos < len(rna_sequence):
+            start_codon = rna_sequence[start_pos:start_pos + 3]
+            if start_codon == "AUG":
+                translation = translate(start_pos, rna_sequence, genetic_code)
+                aa_list.append(translation)
+            start_pos += 1
+        return aa_list
+
+    fin = reverse_and_complement(rna_sequence)
+
+    aa_list = valid_seqs(start_pos, rna_sequence, genetic_code, aa_list)
+    aa_list = valid_seqs(start_pos, fin, genetic_code, aa_list)
+
+    max_len = -1
+    for seq in aa_list:
+        if len(seq) > max_len:
+            max_length = len(seq)
+            longest = seq
+    return longest
 
 
 if __name__ == '__main__':
